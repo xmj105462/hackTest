@@ -2,18 +2,18 @@
 #include<conio.h>
 #include"pushFunny.h"
 
-constexpr auto SCREEN_WIDTH = 1041;
-constexpr auto SCREEN_HEIGHT = 700;
-constexpr auto LINE = 9;
-constexpr auto COLUMN = 12;
-constexpr auto IMAGE_SIZE = 61;
-constexpr auto KEY_UP = 72;
-constexpr auto KEY_RIGHT = 77;
-constexpr auto KEY_DOWN = 80;
-constexpr auto KEY_LEFT = 75;
-constexpr auto KEY_SPACE = 32;
-constexpr auto START_X = 180;
-constexpr auto START_Y = 80;
+constexpr unsigned short SCREEN_WIDTH = 1041;
+constexpr unsigned short SCREEN_HEIGHT = 700;
+constexpr unsigned short LINE = 9;
+constexpr unsigned short COLUMN = 12;
+constexpr unsigned short IMAGE_SIZE = 61;
+constexpr unsigned short KEY_UP = 72;
+constexpr unsigned short KEY_RIGHT = 77;
+constexpr unsigned short KEY_DOWN = 80;
+constexpr unsigned short KEY_LEFT = 75;
+constexpr unsigned short KEY_SPACE = 32;
+constexpr unsigned short START_X = 180;
+constexpr unsigned short START_Y = 80;
 //给FLOOR_MAN_MOVE调用先画地板
 #define MOVE(man,Y) START_X + man->x * IMAGE_SIZE, START_Y + man->y * IMAGE_SIZE, &imageArr[Y]
 //人物移动时先赋值地板/目的地
@@ -43,7 +43,7 @@ else {FLOOR_MOVE;FLOOR_MAN_MOVE(FLOOR, T1, T2)}
 
 /*游戏地图
 1地板，0墙，2箱子目的地, 3小人, 4箱子, 5箱子命中目标
-*/  int map[LINE][COLUMN] = { { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+*/  short map[LINE][COLUMN] = { { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 { 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0 },
 { 0, 1, 4, 1, 0, 2, 1, 0, 2, 1, 0, 0 },
 { 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0 },
@@ -59,8 +59,8 @@ typedef enum {
 IMAGE imageArr[all] = {};
 IMAGE bkImage;
 struct Person {
-	int x;
-	int y;
+	short x;
+	short y;
 };
 
 void initFrame() {
@@ -73,15 +73,15 @@ void initFrame() {
 	LOAD_IMG(MAN, "./推箱子素材/人物.bmp");
 	LOAD_IMG(box, "./推箱子素材/箱子.bmp");
 	LOAD_IMG(hit, "./推箱子素材/hit.gif");
-	for (int j = 0; j < LINE; j++) {
-		for (int i = 0; i < COLUMN; i++) {//绘制地图
+	for (unsigned short j = 0; j < LINE; j++) {
+		for (unsigned short i = 0; i < COLUMN; i++) {//绘制地图
 			putimage(START_X + i * IMAGE_SIZE, START_Y + j * IMAGE_SIZE, &imageArr[map[j][i]]);
 		}
 	}
 	setcolor(LIGHTGREEN);
-	settextstyle(20, 0, _T("宋体")); outtextxy(480,20,_T("请在100步以内完成"));
+	settextstyle(20, 0, _T("宋体")); outtextxy(480,20,_T("请在100步以内完成，操作键↑↓←→"));
 }
-bool keyCheck(int key, Person* man,bool&, unsigned short &);
+bool keyCheck(short key, Person* man,bool&, unsigned short &);
 void gameControl() {
 	struct Person man = { 5,5 };
 	bool quit = 1; bool recover = 0; unsigned short endCount= 0;
@@ -105,14 +105,13 @@ void gameControl() {
 
 }
 bool endFrame() {
-	for (size_t j = 1; j < LINE; j++) {
-		for (size_t i = 1; i < COLUMN; i++) {
+	for (unsigned short j = 1; j < LINE; j++) {
+		for (unsigned short i = 1; i < COLUMN; i++) {
 			if (map[j][i] == 2) return 0;
 		}
 	}return 1;
 }
-bool keyCheck(int key, Person* man,bool& recover,unsigned short& endCount) {
-	//if (man->x<1 || man->x >COLUMN - 1 || man->y < 1 || man->y>LINE - 1)return 0;
+bool keyCheck(short key, Person* man,bool& recover,unsigned short& endCount) {
 	switch (key) {
 	case KEY_UP://上
 		if (IFMOVE(-, 1, , , FLOOR, y, > , 1)) {
@@ -142,7 +141,12 @@ bool keyCheck(int key, Person* man,bool& recover,unsigned short& endCount) {
 				FLOOR_MAN_MOVE(FLOOR, y, -)
 				DRAW_BOX(, , -, 1, hit);
 				map[man->y - 1][man->x] = hit; endCount++;
-			}
+				//播放音效
+				mciSendString(_T("play eliminate.mp3 "), 0, 0, 0);
+			 }
+			else {
+				 mciSendString(_T("play hinderSound.mp3 "), 0, 0, 0);
+			 }
 		}
 		else if (IFMOVE(-, 1, , , hit, y, > , 1)) {			
 			if (IFPUSH(-, 2, , , FLOOR)) {
@@ -151,6 +155,9 @@ bool keyCheck(int key, Person* man,bool& recover,unsigned short& endCount) {
 					DRAW_BOX(, , -, 1, box);
 				map[man->y - 1][man->x] = box; recover = 1; endCount++;
 			}
+		}
+		else {//播放音效
+			mciSendString(_T("play hinderSound.mp3 "), 0, 0, 0);
 		}
 		Sleep(100);
 		break;
@@ -172,22 +179,24 @@ bool keyCheck(int key, Person* man,bool& recover,unsigned short& endCount) {
 			FLOOR_MAN_MOVE(FLOOR,x,+)
 				recover = 1; endCount++;
 		}
-		else if (IFMOVE(, , +, 1, box, x, < , COLUMN-2)) {
-			
+		else if (IFMOVE(, , +, 1, box, x, < , COLUMN-2)) {			
 			 if (IFPUSH(, , +, 2, FLOOR)) {//判断箱子前面是否是地板
 				/*FLOOR_MOVE;
 				FLOOR_MAN_MOVE(FLOOR, x, +)*/
 				 RECOVER(x, +)
 				DRAW_BOX(+, 1, , , box);
-				map[man->y][man->x + 1] = box; endCount++;
-				
+				map[man->y][man->x + 1] = box; endCount++;				
 			}
 			else if (IFPUSH(, , +, 2, dest)) {//判断箱子前面是否是目的地
 				FLOOR_MOVE;
 				FLOOR_MAN_MOVE(FLOOR, x, +)
 				DRAW_BOX(+, 1, , , hit);
 				map[man->y][man->x + 1] = hit; endCount++;
-			}
+				mciSendString(_T("play eliminate.mp3 "), 0, 0, 0);
+			 }
+			else {
+				 mciSendString(_T("play hinderSound.mp3 "), 0, 0, 0);
+			 }
 		}
 		else if (IFMOVE(, , +, 1, hit, x, < , COLUMN - 2)) {			
 			if (IFPUSH(, , +, 2, FLOOR)) {//判断箱子前面是否是地板
@@ -196,6 +205,9 @@ bool keyCheck(int key, Person* man,bool& recover,unsigned short& endCount) {
 					DRAW_BOX(+, 1, , , box);
 				map[man->y][man->x + 1] = box; recover = 1; endCount++;
 			}
+		}
+		else {
+			mciSendString(_T("play hinderSound.mp3 "), 0, 0, 0);
 		}
 		Sleep(100); break;
 	case KEY_DOWN://下map[man->y + 1][man->x] == FLOOR && man->y < LINE	
@@ -227,7 +239,11 @@ bool keyCheck(int key, Person* man,bool& recover,unsigned short& endCount) {
 				FLOOR_MAN_MOVE(FLOOR, y, +)
 				DRAW_BOX(, , +, 1, hit);
 				map[man->y + 1][man->x] = hit; endCount++;
-			}
+				mciSendString(_T("play eliminate.mp3 "), 0, 0, 0);
+			 }
+			else {
+				 mciSendString(_T("play hinderSound.mp3 "), 0, 0, 0);
+			 }
 		}
 		else if (IFMOVE(+, 1, , , hit, y, < , LINE - 2)) {
 			if (IFPUSH(+, 2, , , FLOOR)) {
@@ -236,6 +252,9 @@ bool keyCheck(int key, Person* man,bool& recover,unsigned short& endCount) {
 					DRAW_BOX(, , +, 1, box);
 				map[man->y + 1][man->x] = box; recover = 1; endCount++;
 			}
+		}
+		else {
+			mciSendString(_T("play hinderSound.mp3 "), 0, 0, 0);
 		}
 		Sleep(100); break;
 	case KEY_LEFT://左map[man->y][man->x - 1] == FLOOR && man->x > 0
@@ -268,7 +287,11 @@ bool keyCheck(int key, Person* man,bool& recover,unsigned short& endCount) {
 				FLOOR_MAN_MOVE(FLOOR, x, -)
 				DRAW_BOX(-, 1, , , hit);
 				map[man->y][man->x - 1] = hit; endCount++;
-			}
+				mciSendString(_T("play eliminate.mp3 "), 0, 0, 0);
+			 }
+			else {
+				 mciSendString(_T("play hinderSound.mp3 "), 0, 0, 0);
+			 }
 		}
 		else if (IFMOVE(, , -, 1, hit, x, > , 1)) {
 			if (IFPUSH(, , -, 2, FLOOR)) {
@@ -277,6 +300,9 @@ bool keyCheck(int key, Person* man,bool& recover,unsigned short& endCount) {
 					DRAW_BOX(-, 1, , , box);
 				map[man->y][man->x - 1] = box; recover = 1; endCount++;
 			}
+		}
+		else {
+			mciSendString(_T("play hinderSound.mp3 "), 0, 0, 0);
 		}
 		Sleep(100); break;
 	case KEY_SPACE://空格退出
