@@ -1,19 +1,19 @@
 #include"LinkedList1.h"
 #include<iostream>
 #include"Star.h"
-//void initLinkedList1(LinkedList1& ll1) {
-//	
-//	 ll1.p_next= NULL;
-//}
-//LinkedList1::LinkedList1() {
-//date = new Star();
-//p_next = NULL;
-//	}LinkedList1::LinkedList1() {}
+
 LinkedList1::LinkedList1() {
-	date = new int();
-	p_next = NULL;
-		}
+date = new Star();
+p_next = NULL;
+	}
+
+//LinkedList1::LinkedList1() {}
+//LinkedList1::LinkedList1() {
+//	date = new int();
+//	p_next = NULL;
+//		}
 using namespace std;
+
 bool addLinkedList1(LinkedList1& ll1, LinkedListHead& llh, int i) {
 	if (i <= 0) { cout << "添加失败\n"; return false; }
 	if (i == 1) {
@@ -52,43 +52,53 @@ void addHeadLinkedList1(LinkedList1& ll1, LinkedListHead& llh) {
 	}cout << "添加成功\n";
 }
 
-void addEndLinkedList1(LinkedList1& ll1, LinkedListHead& llh) {
-	if (llh.p_next == NULL) { llh.p_next = &ll1; ll1.p_next = NULL; cout << "添加失败\n"; return; }
-	LinkedList1* p=llh.p_next;
-	while (p) {
-		if ((*(p)).p_next==NULL) {
-			(*(p)).p_next = ll1.p_next; ll1.p_next = NULL; break;
+ void addEndLinkedList1(LinkedList1& ll1, LinkedListHead& llh) {
+	if (llh.p_next == NULL) { llh.p_next = &ll1;  cout << "添加成功\n"; return; }
+	LinkedListHead* p=llh.p_next;
+	while (1) {
+		if (p->p_next==NULL) {
+			p->p_next = &ll1;  break;
+			//LinkedList1* tp = p; ll1.p_next = p->p_next;//先把插入的节点指针指向插入后的下一个节点
+			//tp->p_next = &ll1;
 		}
-		p = (*(p)).p_next;
+		else {
+			p = p->p_next;
+		}		
 	}cout << "添加成功\n";
 }
 
-bool subLinkedList1(LinkedListHead& llh,size_t i) {
-	if (llh.p_next == NULL || i <= 0) { cout << "删除失败\n"; return false; }
+LinkedList1* subLinkedList1(LinkedListHead& llh,size_t i) {
+	if (llh.p_next == NULL || i <= 0) { cout << "移除失败\n"; return NULL; }
 	size_t j = 2;
-	LinkedList1* p ;
+	LinkedList1* p=NULL ;
 	p = llh.p_next;
 	while (p) {
 		if (j==i) {
 			LinkedList1* tp= (*(p)).p_next;
 			(*(p)).p_next = ((*(p)).p_next)->p_next;
-			 delete (*(tp)).date; delete tp; cout << "移除成功\n"; return true;
+			 delete (*(tp)).date; delete tp; cout << "移除成功\n"; return p->p_next;
 		}
-		else if (i==1) {
-			llh.p_next = p->p_next; delete (*(p)).date; delete p; cout << "移除成功\n"; return true;
+		else if (i==1&&p!=NULL) {
+			if (p->p_next) {
+				LinkedList1* tp= p->p_next;
+				llh.p_next = p->p_next; delete (*(p)).date; delete p; cout << "移除成功\n"; return tp;
+			}
+			else {
+				llh.p_next = NULL; delete (*(p)).date; delete p; cout << "移除成功\n"; return NULL;
+			}
 		}
 		else if (j<i) {
 			if ((*(p)).p_next == NULL) {
-				cout << "删除失败\n"; return false;
+				cout << "移除失败\n"; return NULL;
 			}
 			p = (*(p)).p_next; j++;
 		}
-	}cout << "删除失败\n";
-	return false;
+	}cout << "移除失败\n";
+	return NULL;
 }
 
 bool deleteLinkedList1(LinkedListHead& llh) {
-	if (llh.p_next == NULL) { cout << "删除失败\n"; return false; }
+	if (llh.p_next == NULL) { cout << "没有元素删除失败,如果头节点在堆请自行清空\n"; return false; }
 	//size_t j = 2;
 	LinkedList1* p;
 	p = llh.p_next;
@@ -104,10 +114,10 @@ LinkedList1** findLinkedList1(LinkedListHead& llh, int i) {
 	LinkedList1* p; LinkedList1** pArr= new LinkedList1*[FIND_COUNT](); int count = 0;
 	p = llh.p_next;
 	while (p) {
-		if (*(p->date) == i) {			
+		if ((p->date)->x == i) {			
 			cout << "查找成功\t所在节点地址为" << p << endl; pArr[count] = p; count++;
 			p = p->p_next;
-			continue;
+			//continue;
 		}
 		else {
 			p = p->p_next;
@@ -125,9 +135,13 @@ void printfLinkedList1(LinkedListHead& llh) {
 	LinkedList1* p;
 	p = llh.p_next;
 	while (p) {
-		cout << *(p->date) << "\t";		
+		cout << (p->date)->x << "\t";
 			p = p->p_next;		
 	}cout << "输出成功\n";
+}
+void initLinkedList1(LinkedList1& ll1) {
+
+	ll1.p_next = NULL;
 }
 
 
