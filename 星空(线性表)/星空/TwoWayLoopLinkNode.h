@@ -1,7 +1,7 @@
 #pragma once
 #ifndef TWOWAYLOOPLINKNODE_H
 #define TWOWAYLOOPLINKNODE_H
-constexpr auto FIND_COUNT = 10;
+constexpr auto FIND_COUNT2 = 10;
 typedef class TwoWayLoopLinkNode {//Ë«ÏòÁ´±í
 public:
 	//Star* date;

@@ -115,7 +115,7 @@ bool deleteTwoWayLoopLinkNode(TwoWayLoopLinkHead& twllh) {
 
 TwoWayLoopLinkNode** findTwoWayLoopLinkNode(TwoWayLoopLinkHead& twllh, int i) {
 	if (twllh.p_next == NULL || twllh.p_next == &twllh) { cout << "²éÕÒÊ§°Ü\n"; return NULL; }
-	TwoWayLoopLinkNode* p; TwoWayLoopLinkNode** pArr = new TwoWayLoopLinkNode * [FIND_COUNT](); int count = 0;
+	TwoWayLoopLinkNode* p; TwoWayLoopLinkNode** pArr = new TwoWayLoopLinkNode * [FIND_COUNT2](); int count = 0;
 	p = twllh.p_next;
 	while (p != &twllh) {
 		if (*(p->date) == i) {
